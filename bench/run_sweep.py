@@ -88,10 +88,10 @@ def run_worker(args, model: dict, variant: dict, microbatch: int) -> dict:
     if payload.get("status") == "oom":
         log(f"out of memory: {model['label']} / {variant['label']} / microbatch {microbatch}")
     elif payload.get("status") != "complete":
-        raise RuntimeError(
-            f"worker failed for {model['label']} / {variant['label']} / microbatch "
-            f"{microbatch}: {payload.get('error', payload.get('status'))}"
-        )
+        # Not fatal to the sweep: one variant that cannot be built -- a missing FP8
+        # optimizer, say -- must not cost every other point in the job.
+        log(f"FAILED {model['label']} / {variant['label']} / microbatch {microbatch}: "
+            f"{payload.get('error', payload.get('status'))}")
     return payload
 
 
@@ -184,18 +184,25 @@ def main() -> int:
 
     # Once a point runs out of memory, every larger micro-batch of it will too.
     exhausted: set[tuple[str, str]] = set()
+    # A variant that fails to build fails identically at every micro-batch, and each
+    # attempt costs a process start; a resubmission retries, since a failed point is
+    # never reused.
+    broken: set[tuple[str, str]] = set()
     results = []
     for model in models:
         for microbatch in microbatches:
             for variant in variants:
                 key = (model["name"], variant["name"])
-                if key in exhausted:
+                if key in exhausted or key in broken:
+                    reason = "ran out of memory" if key in exhausted else "failed"
                     log(f"skip {model['label']} / {variant['label']} / microbatch "
-                        f"{microbatch}: a smaller micro-batch ran out of memory")
+                        f"{microbatch}: a smaller micro-batch {reason}")
                     continue
                 payload = run_worker(args, model, variant, microbatch)
                 if payload.get("status") == "oom":
                     exhausted.add(key)
+                elif payload.get("status") != "complete":
+                    broken.add(key)
                 results.append(payload)
                 atomic_write_json(args.output_dir / "results.json", {
                     "status": "complete",
