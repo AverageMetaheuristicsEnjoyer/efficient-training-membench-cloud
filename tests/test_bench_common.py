@@ -71,8 +71,8 @@ def test_a_micro_batch_that_does_not_divide_the_step_is_refused():
         accumulation_steps(DEFAULT_TOKENS_PER_STEP, 3, DEFAULT_SEQUENCE_LENGTH)
 
 
-def test_the_variant_grid_is_three_optimizers_by_three_precisions():
-    assert len(VARIANTS) == 9
+def test_the_variant_grid_is_three_optimizers_by_four_precisions():
+    assert len(VARIANTS) == 12
     assert {variant["optimizer"] for variant in VARIANTS} == {"adamw", "muon", "soap"}
     for optimizer in ("adamw", "muon", "soap"):
         names = {variant["name"] for variant in VARIANTS if variant["optimizer"] == optimizer}
@@ -80,7 +80,13 @@ def test_the_variant_grid_is_three_optimizers_by_three_precisions():
             f"{optimizer}_bf16_state_fp32",
             f"{optimizer}_fp8gemm_state_fp32",
             f"{optimizer}_bf16_state_fp8",
+            f"{optimizer}_fp8gemm_state_fp8",
         }
+
+
+def test_the_combined_variant_asks_for_both_axes():
+    combined = variant_spec("adamw_fp8gemm_state_fp8")
+    assert combined["gemm"] == "fp8" and combined["state"] == "fp8"
 
 
 def test_variant_names_match_the_moe_half_of_the_benchmark():

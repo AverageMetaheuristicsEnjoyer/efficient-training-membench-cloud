@@ -74,6 +74,12 @@ PRECISIONS = (
     {"suffix": "bf16_state_fp32", "gemm": "bf16", "state": "fp32"},
     {"suffix": "fp8gemm_state_fp32", "gemm": "fp8", "state": "fp32"},
     {"suffix": "bf16_state_fp8", "gemm": "bf16", "state": "fp8"},
+    # Both axes at once. The MoE arms never combine them, so this has no counterpart
+    # on that side of the benchmark and is not part of the joined table. It exists
+    # because it is the only configuration with a chance of putting 6.89B on an 80 GB
+    # card: FP8 GEMM takes about 40% of the activations and FP8 state takes 3.66x off
+    # the moments, and at that size neither alone is close.
+    {"suffix": "fp8gemm_state_fp8", "gemm": "fp8", "state": "fp8"},
 )
 
 VARIANTS = tuple(

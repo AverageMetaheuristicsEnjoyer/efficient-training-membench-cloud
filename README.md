@@ -37,7 +37,7 @@ SOAP modules import exactly as they do upstream.
 |---|---|
 | Model | `257m` (12L/1024), `500m` (18L/1280), `1p4b` (24L/2048), `3p5b` (28L/3072), `6p9b` (32L/4096) -- 257,188,864 / 494,516,480 / 1,439,270,912 / 3,480,136,704 / 6,888,361,984 parameters |
 | Optimizer | AdamW, Muon (`MuonLite` with LITE disabled), SOAP |
-| Precision | `bf16_state_fp32` baseline, `fp8gemm_state_fp32` (COAT FP8 activations), `bf16_state_fp8` (FP8 optimizer state) |
+| Precision | `bf16_state_fp32` baseline, `fp8gemm_state_fp32` (COAT FP8 activations), `bf16_state_fp8` (FP8 optimizer state), `fp8gemm_state_fp8` (both) |
 | Micro-batch | 1, 2, 4, 8, 16 |
 | Tokens per optimizer step | fixed at 16,384 (16 sequences x 1,024), accumulation traded against the micro-batch |
 | Window | 3 warmup steps, then 12 measured steps |
