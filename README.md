@@ -17,6 +17,15 @@ no training entry point, no datasets, no evaluation stack, no run scripts, no
 history. `./sync_from_upstream.sh` re-copies that subset and rewrites `UPSTREAM.txt`
 with the commit it came from.
 
+The upstream branch is `codex/efficient-image-muon`, which is where FP8 SOAP
+(`src/optim/sota_opt/fp8_soap.py`), FP8 Muon (`MuonLite` with `qargs`) and the FP8
+AdamW all exist together. `debug-fp8` has none of the first two, and
+`codex/cloud-fp8-optimizer-states` has no FP8 SOAP.
+
+The commit `sync_from_upstream.sh` recorded in `UPSTREAM.txt` is part of every
+point's controls, so re-syncing invalidates measurements taken against the old
+revision instead of silently reusing them.
+
 One deliberate omission is worth knowing about: `src/optim/sota_opt/__init__.py` is
 not copied. Importing it pulls in MARS, Adan, SWAN and Shampoo, none of which this
 benchmark builds. Without it `optim.sota_opt` resolves as a namespace package and the

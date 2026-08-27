@@ -9,6 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from bench.common import (  # noqa: E402
+    COMMON_CONTROL_FIELDS,
     DEFAULT_SEQUENCE_LENGTH,
     DEFAULT_TOKENS_PER_STEP,
     MICROBATCHES,
@@ -18,6 +19,7 @@ from bench.common import (  # noqa: E402
     expected_parameters,
     mlp_hidden_dim,
     model_spec,
+    upstream_commit,
     variant_spec,
 )
 
@@ -97,3 +99,20 @@ def test_unknown_names_are_refused():
         model_spec("nope")
     with pytest.raises(KeyError):
         variant_spec("nope")
+
+
+def test_the_vendored_revision_is_part_of_a_point_identity():
+    """Re-syncing changes the model and the optimizers, so it must invalidate points."""
+    commit = upstream_commit()
+    assert commit != "unknown", "UPSTREAM.txt is missing; run ./sync_from_upstream.sh"
+    assert len(commit) == 40 and all(c in "0123456789abcdef" for c in commit)
+    assert "upstream_commit" in COMMON_CONTROL_FIELDS
+
+
+def test_fp8_soap_is_present_in_the_vendored_subset():
+    """The SOAP FP8-state row is empty without it, and the omission is easy to miss."""
+    import importlib.util
+
+    root = Path(__file__).resolve().parents[1]
+    sys.path.insert(0, str(root / "src"))
+    assert importlib.util.find_spec("optim.sota_opt.fp8_soap") is not None

@@ -1,4 +1,4 @@
 upstream: git@gh-workstation:modernTalker/Efficient-Training.git
-branch:   codex/cloud-fp8-optimizer-states
-commit:   d3ac21cbf33a9f92c54860ce672717b33436d6f9
-synced:   2026-08-27T16:59:33Z
+branch:   codex/efficient-image-muon
+commit:   b130b71665805903328fde0cd429bf1ae8fe9a4c
+synced:   2026-08-27T17:20:22Z

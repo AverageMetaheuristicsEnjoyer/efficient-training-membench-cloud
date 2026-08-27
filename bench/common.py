@@ -77,9 +77,26 @@ DEFAULT_VOCAB_SIZE = 50304
 
 HARNESS_REVISION = 1
 
+
+def upstream_commit() -> str:
+    """The vendored code is a control, not scenery: a re-sync changes what is measured.
+
+    Recording it inside the point's controls is what stops a sweep from silently
+    reusing numbers produced by a different revision of the model or the optimizers.
+    """
+    manifest = Path(__file__).resolve().parents[1] / "UPSTREAM.txt"
+    if not manifest.is_file():
+        return "unknown"
+    for line in manifest.read_text().splitlines():
+        if line.startswith("commit:"):
+            return line.split(":", 1)[1].strip()
+    return "unknown"
+
+
 # Identical at every point of a sweep; a report refuses a mix.
 COMMON_CONTROL_FIELDS = (
     "harness_revision",
+    "upstream_commit",
     "storage_dtype",
     "autocast_dtype",
     "sequence_length",
@@ -140,6 +157,7 @@ def requested_controls(args, microbatch: int, accumulation: int) -> dict:
     """What a stored result must reproduce to be reused instead of rerun."""
     return {
         "harness_revision": HARNESS_REVISION,
+        "upstream_commit": upstream_commit(),
         "storage_dtype": "float32",
         "autocast_dtype": "bfloat16",
         "sequence_length": args.sequence_length,

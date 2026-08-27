@@ -12,7 +12,7 @@
 set -euo pipefail
 
 upstream=${1:-$HOME/Programming/Efficient-Training}
-branch=${2:-codex/cloud-fp8-optimizer-states}
+branch=${2:-codex/efficient-image-muon}
 here=$(cd "$(dirname "$0")" && pwd)
 
 [[ -d $upstream/.git ]] || { echo "not a checkout: $upstream" >&2; exit 2; }
