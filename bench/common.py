@@ -43,6 +43,27 @@ MODEL_SPECS = (
         "n_head": 16,
         "parameters_expected": 1_439_270_912,
     },
+    {
+        "name": "3p5b",
+        "label": "3.48B",
+        "n_layer": 28,
+        "n_embd": 3072,
+        "n_head": 24,
+        "parameters_expected": 3_480_136_704,
+    },
+    # FP32 weights + FP32 gradients + FP32 Adam moments are 110.2 GB here, before a
+    # single activation, so the baseline cannot fit an 80 GB card in the recipe this
+    # benchmark measures. It is swept anyway: "does not fit" is the measurement, and
+    # more cards do not change it -- this harness replicates like the training run
+    # does, it does not shard the optimizer.
+    {
+        "name": "6p9b",
+        "label": "6.89B",
+        "n_layer": 32,
+        "n_embd": 4096,
+        "n_head": 32,
+        "parameters_expected": 6_888_361_984,
+    },
 )
 
 # optimizer x precision. `bf16_state_fp32` is the baseline every ratio is taken

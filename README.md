@@ -35,7 +35,7 @@ SOAP modules import exactly as they do upstream.
 
 | | |
 |---|---|
-| Model | `257m` (12L/1024), `500m` (18L/1280), `1p4b` (24L/2048) -- 257,188,864 / 494,516,480 / 1,439,270,912 parameters |
+| Model | `257m` (12L/1024), `500m` (18L/1280), `1p4b` (24L/2048), `3p5b` (28L/3072), `6p9b` (32L/4096) -- 257,188,864 / 494,516,480 / 1,439,270,912 / 3,480,136,704 / 6,888,361,984 parameters |
 | Optimizer | AdamW, Muon (`MuonLite` with LITE disabled), SOAP |
 | Precision | `bf16_state_fp32` baseline, `fp8gemm_state_fp32` (COAT FP8 activations), `bf16_state_fp8` (FP8 optimizer state) |
 | Micro-batch | 1, 2, 4, 8, 16 |
@@ -54,7 +54,12 @@ model, whose per-step work does not depend on the content of the batch. (It woul
 be sound for the MoE half, where routing does; that half reads the real corpus.)
 
 Running out of memory is recorded as a result, not an error, and every larger
-micro-batch of that model and variant is then skipped.
+micro-batch of that model and variant is then skipped. It is the expected result at
+the top of the size axis: the measured recipe keeps FP32 weights, FP32 gradients and
+FP32 optimizer moments, which is 110.2 GB at 6.89B before a single activation. More
+cards do not move that number -- this harness replicates the way the training run
+does, it does not shard the optimizer -- so 6.89B is swept to record where the wall
+is and which variants, if any, sit under it.
 
 ## Running it
 

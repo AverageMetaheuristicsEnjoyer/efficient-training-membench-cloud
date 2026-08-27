@@ -46,6 +46,14 @@ def test_257m_agrees_with_the_sibling_benchmark():
     """The same Llama at the same geometry is measured in effective-muon-membench."""
     assert model_spec("257m")["parameters_expected"] == 257_188_864
     assert model_spec("1p4b")["parameters_expected"] == 1_439_270_912
+    assert model_spec("3p5b")["parameters_expected"] == 3_480_136_704
+    assert model_spec("6p9b")["parameters_expected"] == 6_888_361_984
+
+
+def test_the_size_axis_is_ordered_and_spans_a_decade():
+    counts = [spec["parameters_expected"] for spec in MODEL_SPECS]
+    assert counts == sorted(counts)
+    assert counts[-1] / counts[0] > 25
 
 
 def test_every_micro_batch_processes_the_same_tokens_per_step():
